@@ -3,8 +3,9 @@ import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   plugins: [react()],
-  server: {
-    port: 3000
-  }
+  root: '.',             // <-- confirms index.html is in frontend/
+  build: {
+    outDir: 'dist',
+  },
 })
 
