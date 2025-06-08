@@ -41,8 +41,9 @@ newsbriefbot/
 │       ├── main.tsx          # Entry point
 │       └── index.css         # Tailwind setup
 ├── data/                     # Temporary summaries and logs
+├── .env                      # Environment variables (e.g. API keys)
+├── install.sh                # Optional install script for local dev
 ├── nginx.conf                # Nginx reverse proxy config (frontend + /api backend)
-├── .env                      # Environment variables
 ├── requirements.txt          # Python backend dependencies
 ├── docker-compose.yml        # Combined app orchestration
 ├── Dockerfile                # Backend/Frontend/Nginx Docker image
@@ -63,12 +64,12 @@ newsbriefbot/
    git clone https://github.com/mcdnew/newsbriefbot.git
    cd newsbriefbot
    ```
-2. Create a `.env` file at the project root:
+2. Create a `.env` file:
    ```env
-   OPENAI_API_KEY=your_key_here
-   ... other secrets ...
+   OPENAI_API_KEY=your-key-here
+   ENVIRONMENT=development
    ```
-3. Build and run the app:
+3. Run the full stack:
    ```bash
    docker-compose up --build
    ```
@@ -81,11 +82,21 @@ Then open:
 
 ## 🔁 Reverse Proxy with Nginx
 
-The app uses **Nginx as a reverse proxy** so:
+The app uses **Nginx as a reverse proxy**:
 - Frontend served at `/`
-- API proxied at `/api/*` → FastAPI backend
+- Backend API served at `/api/*`
 
-This avoids CORS issues and provides clean paths for production.
+This avoids CORS issues and simplifies deployment.
+
+---
+
+## 🐍 For Local Devs (Optional)
+If you're developing without Docker:
+```bash
+chmod +x install.sh
+./install.sh
+```
+Then run frontend and backend manually.
 
 ---
 
