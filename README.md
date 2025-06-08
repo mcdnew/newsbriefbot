@@ -32,100 +32,87 @@ newsbriefbot/
 │   │   └── tasks.py          # Runs jobs to fetch, summarize, store
 │   └── main.py               # FastAPI app entry + scheduler start
 ├── frontend/
-│   └── src/
-│       ├── pages/            # UI pages (dashboard, config, preview)
-│       ├── components/       # Reusable UI components
-│       └── api/              # API client (Axios/fetch wrappers)
+│   ├── public/               # HTML template
+│   └── src/                  # React app
+│       ├── api/              # Axios API wrappers
+│       ├── pages/            # UI pages
+│       ├── components/       # Shared UI components
+│       ├── App.tsx           # Root component
+│       ├── main.tsx          # Entry point
+│       └── index.css         # Tailwind setup
 ├── data/                     # Temporary summaries and logs
-├── .env                      # Environment variables (e.g. API keys)
-├── docker-compose.yml        # Service orchestration
+├── nginx.conf                # Nginx reverse proxy config (frontend + /api backend)
+├── .env                      # Environment variables
+├── requirements.txt          # Python backend dependencies
+├── docker-compose.yml        # Combined app orchestration
+├── Dockerfile                # Backend/Frontend/Nginx Docker image
 └── README.md
 ```
 
 ---
 
-## 🚀 Getting Started
+## 🚀 Getting Started (via Docker + Nginx Reverse Proxy)
 
 ### Requirements
-- Python 3.9+
-- Node.js (for frontend)
-- Docker & Docker Compose (for local dev)
+- Docker
+- Docker Compose
 
-### Quick Start
+### Quick Setup
 1. Clone the repo:
    ```bash
    git clone https://github.com/mcdnew/newsbriefbot.git
    cd newsbriefbot
    ```
-2. Create your `.env` file and add your OpenAI API key, etc.
-3. Start the app:
+2. Create a `.env` file at the project root:
+   ```env
+   OPENAI_API_KEY=your_key_here
+   ... other secrets ...
+   ```
+3. Build and run the app:
    ```bash
    docker-compose up --build
    ```
 
-Then visit:
-- Backend API: `http://localhost:8000/docs`
-- Frontend UI: `http://localhost:3000`
+Then open:
+- Full app (frontend + API): `http://localhost`
+- FastAPI Swagger docs: `http://localhost/api/docs`
 
 ---
 
-## 🛠 Backend Modules
+## 🔁 Reverse Proxy with Nginx
 
-### 🔹 `models/database.py`
-- Sets up SQLite database
-- Provides `SessionLocal` and `Base`
+The app uses **Nginx as a reverse proxy** so:
+- Frontend served at `/`
+- API proxied at `/api/*` → FastAPI backend
 
-### 🔹 `models/source.py`
-- `Source`: stores input feeds or websites
-- `Summary`: stores fetched and summarized content
-
-### 🔹 `core/fetcher.py`
-- `fetch_rss_articles(url)`: uses `feedparser` to pull recent articles
-- `scrape_article(url)`: uses `requests + BeautifulSoup` to extract text
-
-### 🔹 `core/summarizer.py`
-- `summarize_text(text)`: calls OpenAI API to generate summaries
-
-### 🔹 `core/generator.py`
-- `generate_brief(list)`: formats a Markdown summary document
-
-### 🔹 `scheduler/tasks.py`
-- `run_job()`: executes a full pipeline:
-  - Fetch sources
-  - Scrape/parse content
-  - Summarize
-  - Save to DB
-  - Print brief
-- `start_scheduler()`: launches APScheduler loop
-
-### 🔹 `api/source.py`
-- `GET /sources/`: list all sources
-- `POST /sources/`: add new source (RSS, web, email)
-
-### 🔹 `api/generate.py`
-- `POST /generate/`: manually trigger the job runner
-
-### 🔹 `main.py`
-- Initializes FastAPI app
-- Registers routes
-- Starts scheduler
+This avoids CORS issues and provides clean paths for production.
 
 ---
 
-## 🧠 Usage Examples
+## 🧠 Backend Modules Overview
+(unchanged, see above)
 
-### Add a Source (POST `/sources/`)
-```json
-{
-  "name": "TechCrunch RSS",
-  "type": "rss",
-  "config": { "url": "https://techcrunch.com/feed/" },
-  "schedule": "daily"
-}
+---
+
+## 🧠 Frontend Stack (Vite + React + Tailwind)
+- **Framework**: Vite + React + TypeScript
+- **Styling**: Tailwind CSS
+- **HTTP**: Axios (uses `/api/*` paths)
+- **Components**: `/src/pages`, `/src/components`
+
+---
+
+## 🐳 Docker Deployment
+
+### 🧱 Services
+- **frontend** → React app built and served via Nginx
+- **backend** → FastAPI served via uvicorn (proxied by Nginx)
+- **nginx** → Public gateway at `http://localhost`
+
+### ✅ Run it:
+```bash
+docker-compose up --build
 ```
-
-### Manually Generate Brief (POST `/generate/`)
-Trigger the background job manually via Swagger or any HTTP client.
 
 ---
 
@@ -139,4 +126,6 @@ Trigger the background job manually via Swagger or any HTTP client.
 
 ## 📄 License
 MIT License. Free to use, modify, and distribute.
+
+
 
